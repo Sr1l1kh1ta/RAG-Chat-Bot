@@ -1,0 +1,188 @@
+@startuml classes_MPRMS
+set namespaceSeparator none
+
+
+
+class "Resource" as MPRMS.core.Resource {
+  created_at
+  name
+  {abstract}allocate()
+  {abstract}get_status()
+  {abstract}release()
+}
+
+class "user" as MPRMS.core.user {
+  name
+  role
+  user_id
+  {abstract}request_resource()
+  {abstract}return_resource()
+  {abstract}view_status()
+}
+
+
+class "LibraryManagementSystemDemo" as MPRMS.main.LibraryManagementSystemDemo {
+  run()
+}
+
+class "Book" as MPRMS.library.Book {
+  author
+  available
+  isbn
+  publication_year
+  title
+  allocate()
+  get_status()
+  release()
+}
+
+
+class "Librarian" as MPRMS.library.Librarian {
+  LOAN_DURATION_DAYS : int
+  MAX_BOOKS_PER_MEMBER : int
+  catalog : dict
+  members : dict
+  add_book(book: Book)
+  get_book(book_title: str) -> Book
+  get_member(user_id: str) -> Member
+  register_member(member: Member)
+  remove_book(isbn: str)
+  request_resource(user_id: str, book_title: str)
+  return_resource(member_id: str, book_title: str)
+  search_books(keyword: str) -> List[Book]
+  unregister_member(user_id: str)
+  view_status(book_title)
+}
+
+class "Member" as MPRMS.library.Member {
+  borrowed_books
+  contact_info
+  request_resource(book_title)
+  return_resource(book_title)
+  view_status(book_title)
+}
+
+class "EmployeeManagementSystemDemo" as MPRMS.main.EmployeeManagementSystemDemo {
+  run()
+}
+
+
+class "EmployeeRecord" as MPRMS.employee_management.EmployeeRecord {
+  employeeID
+  hr
+  in_project : bool
+  joining
+  manager
+  project_id : str
+  salary
+  allocate(proid)
+  get_status()
+  release()
+}
+
+class "Manager" as MPRMS.employee_management.Manager {
+  employee_id
+  hr
+  project_id
+  request_resource(employee_id)
+  return_resource(employee_id)
+  view_status(employee_id)
+  request_update_employee_in_csv(employee_id)
+  update_employee_in_csv(employee_id)
+}
+
+
+class "HR" as MPRMS.employee_management.HR {
+  employees : dict
+  add_employee(employee: EmployeeRecord)
+  update_employee_csv(employee: EmployeeRecord)
+  add_manager(manager: Manager)
+  request_resource(employee_id, proid)
+  return_resource(employee_id)
+  terminate_employee(employee_id)
+  terminate_manager(manager_id)
+  view_status(employee_id)
+  update_manager_csv(terminated_manger_id)
+  remove_employee_from_csv(employee_id)
+  request_update_employee_in_csv(employee_id)
+  update_employee_in_csv(employee_id)
+  load_from_csv(employee_file_path,manager_file_path)
+}
+
+
+
+class "InventoryManagementSystemDemo" as MPRMS.main.InventoryManagementSystemDemo {
+  run()
+}
+
+class "Employee" as MPRMS.inventory.Employee {
+  employeeID
+  request_resource(item_id, amount)
+  return_resource(item_id)
+  view_status(item_id)
+  load_resources_from_csv()
+  save_resources_to_csv()
+}
+class "InventoryItem" as MPRMS.inventory.InventoryItem {
+  item_id
+  item_name
+  stock : int
+  allocate(required)
+  get_status()
+  release()
+}
+
+
+
+
+class "WarehouseManager" as MPRMS.inventory.WarehouseManager {
+  catalog : dict
+  employees : dict
+  add_employee(employee: Employee)
+  add_item(item: InventoryItem)
+  del_item(id)
+  request_resource(item_id, amount)
+  return_resource(item_id)
+  terminate_employee(employee_id)
+  update_stock(id, new_stock)
+  view_status(item_id)
+  load_resources_from_csv()
+  save_resources_to_csv()
+  load_employees_from_csv()
+  save_employees_to_csv()
+
+}
+
+' Define relationships
+MPRMS.employee_management.EmployeeRecord --|> MPRMS.core.Resource
+MPRMS.employee_management.HR --|> MPRMS.core.user
+MPRMS.employee_management.Manager --|> MPRMS.core.user
+
+
+MPRMS.employee_management.HR --> MPRMS.employee_management.EmployeeRecord
+MPRMS.employee_management.HR --> MPRMS.employee_management.Manager
+MPRMS.employee_management.Manager --> MPRMS.employee_management.HR
+
+
+MPRMS.library.Member --|> MPRMS.core.user
+MPRMS.library.Librarian --|> MPRMS.core.user
+MPRMS.library.Book --|> MPRMS.core.Resource
+
+MPRMS.library.Librarian --> MPRMS.library.Book 
+MPRMS.library.Librarian --> MPRMS.library.Member
+MPRMS.library.Member --> MPRMS.library.Book
+
+
+MPRMS.inventory.WarehouseManager --|> MPRMS.core.user
+MPRMS.inventory.InventoryItem --|> MPRMS.core.Resource
+MPRMS.inventory.Employee --|> MPRMS.core.user
+
+MPRMS.inventory.WarehouseManager --> MPRMS.inventory.InventoryItem
+MPRMS.inventory.Employee --> MPRMS.inventory.InventoryItem
+MPRMS.inventory.WarehouseManager --> MPRMS.inventory.Employee
+
+MPRMS.main.LibraryManagementSystemDemo --|> MPRMS.main
+MPRMS.main.EmployeeManagementSystemDemo --|> MPRMS.main
+MPRMS.main.InventoryManagementSystemDemo --|> MPRMS.main
+
+@enduml
